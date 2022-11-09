@@ -1,0 +1,18 @@
+
+height: 26
+size: 5863642
+node_count: 12005403
+
+
+Enter an ipv4 string or a number (or a blank line to quit).
+> 239075328: (14.64.0.0, KR: Korea (Republic of), Seoul, Seoul-teukbyeolsi) 
+> 388841471: (23.45.63.255, JP: Japan, Tokyo, Tokyo) 
+> 151587071: (9.9.8.255, US: United States of America, Durham, North Carolina) 
+> 0: (0.0.0.0, -: -, -, -) 
+> 1049985024: (62.149.128.0, IT: Italy, Arezzo, Toscana) 
+> 2574287104: (153.112.129.0, SE: Sweden, Goeteborg, Vastra Gotalands lan) 
+> 1747812352: (104.45.128.0, US: United States of America, Washington, Virginia) 
+> 1839726592: (109.168.0.0, IT: Italy, Milan, Lombardia) 
+> 0: (0.0.0.0, -: -, -, -) 
+> 0: (0.0.0.0, -: -, -, -) 
+> 
