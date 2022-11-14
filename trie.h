@@ -3,6 +3,7 @@
 // Starter trie module for an integer-keyed trie data type ADT
 // @author CS@RIT.EDU
 // @author TODO add YOUR FULL NAME AND LOGIN HERE
+// @author Chan-Sung Kim, ck4135
 // // // // // // // // // // // // // // // // // // // // // // // // 
 
 #ifndef TRIE_H
@@ -19,6 +20,13 @@ typedef unsigned int ikey_t;
 struct Entry_s {
     ikey_t key;              ///< unique identifier key
     ///< TODO DECIDE WHAT TO ADD HERE
+    //char values[6];
+    char *from;
+    char *to;
+    char *code;
+    char *name;
+    char *province;
+    char *city;
 };
 
 typedef struct Entry_s Entry;
@@ -58,7 +66,7 @@ void ibt_destroy( Trie trie);
 /// @param TODO what needs to be copied into the trie node
 /// @post the trie has grown to include a new entry IFF not already present
 
-void ibt_insert( Trie trie, ...);
+void ibt_insert( Trie trie, Entry *payload, int pos );
 
 /// search for the key in the trie by finding
 /// the closest entry that matches key in the Trie.
@@ -66,7 +74,7 @@ void ibt_insert( Trie trie, ...);
 /// @param key the key to find 
 /// @return entry representing the found entry or a null entry for not found
 
-Entry ibt_search( Trie trie, ikey_t key);
+Entry *ibt_search( Trie trie, ikey_t key, int pos );
 
 /// get the size of the trie or number of leaf elements
 /// @param trie a pointer to a Trie instance
@@ -94,6 +102,8 @@ size_t ibt_height( Trie trie);
 /// @param stream the stream destination of output
 
 void ibt_show( Trie trie, FILE * stream);
+
+size_t bit( ikey_t key, int pos );
 
 #endif // TRIE_H
 

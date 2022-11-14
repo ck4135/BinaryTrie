@@ -1,0 +1,87 @@
+#########################################################
+# packman project gitignore file
+# list was taken from github and modified for csci243 use
+# Thu Oct 21 17:26:41 EDT 2021
+#########################################################
+#
+# to keep .png and other graphics in case they get lost or
+# cannot be replaced/remade easily.
+# *.png
+# *.jpg
+###################
+# recreatable/regenerated binaries
+#
+GET.try
+TestList.txt
+*.csv
+*.CSV
+# regression test output directories 
+place_ip
+test_place_ip
+revisions.txt
+test_trie
+# ignore files created by running valgrind on solution
+out.vg*
+err.*
+out.*
+# try files to ignore, including timing out and error files
+time.*
+tout.*
+terr.*
+hidden.*
+# recreatable/regenerated files and folders
+Makefile
+doc_all
+doc_pub
+*,b
+*,b,cp
+__pycache__/*
+#
+# doxygen generated files
+doc/*
+#
+#########################################################
+# generic exclusions from github gitignore
+# Compiled source #
+###################
+*.a
+*.class
+*.com
+*.dll
+*.exe
+*.i
+*.o
+*.pyc
+*.s
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.aux
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.Trash
+Thumbs.db
+
