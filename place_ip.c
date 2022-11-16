@@ -6,7 +6,7 @@
 #include <string.h>
 #include "trie.h"
 
-const char delim[] = ",\"";
+const char delim[] = ",\"\n";
 
 int main ( int argc, char *argv[] ) {
     // check for valid arguments
@@ -22,18 +22,16 @@ int main ( int argc, char *argv[] ) {
         return -1;
     }
 
-    printf("%u\n", 1 << 31);
-
     // construct Trie
     char buf[RADIX];
     memset(buf, 0, RADIX);
     char *token;
-    Trie trie = ibt_create();
+    Trie trie = ibt_create(NULL);
     Entry *from_range, *to_range;
     while (fgets(buf, RADIX, fp) != NULL) {
         // set from and to IP addresses
-        from_range = malloc(sizeof(Entry));
-        to_range = malloc(sizeof(Entry));
+        from_range = malloc(sizeof(struct Entry_s));
+        to_range = malloc(sizeof(struct Entry_s));
         
         from_range->key = atoi(strtok(buf, delim));
         to_range->key = atoi(strtok(NULL, delim));
@@ -59,19 +57,23 @@ int main ( int argc, char *argv[] ) {
         to_range->city = token;
 
         // insert data into Trie
-        //ibt_insert(trie, from_range, 31);
-        //ibt_insert(trie, to_range, 31);
+        ibt_insert(trie, from_range);
+        ibt_insert(trie, to_range);
     }
+
+    ibt_show(trie, stdin);
 
     // take in IPV4 number to search for
     char ip[BITSPERWORD];
-    printf("Enter an IPV4 string or a number (or a blank line to quit).\n>");
+    printf("Enter an IPV4 string or a number (or a blank line to quit).\n> ");
     fgets(ip, BITSPERWORD, stdin);
     while (ip[0] != '\n') {
-        printf(": ");
-        ibt_search(trie, atoi(ip), 31);
-        printf(">");
+        ip[strcspn(ip, "\n")] = 0;
+        printf("%s: ", ip);
+        ibt_search(trie, atoi(ip));
+        printf("\n> ");
         fgets(ip, BITSPERWORD, stdin);
     }
+    fclose(fp);
     return 0;
 }

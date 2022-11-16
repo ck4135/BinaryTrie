@@ -49,7 +49,7 @@ extern const size_t RADIX;              ///< number of possible key values
 /// @return pointer to the Trie object instance or NULL on failure
 /// @post Trie is NULL on failure or initialized with a NULL trie root
 
-Trie ibt_create( void );
+Trie ibt_create( Entry * payload );
 
 /// Destroy the trie and free all storage.
 /// Uses Trie's Delete_value function to free app-specific (key and) value;
@@ -66,7 +66,7 @@ void ibt_destroy( Trie trie);
 /// @param TODO what needs to be copied into the trie node
 /// @post the trie has grown to include a new entry IFF not already present
 
-void ibt_insert( Trie trie, Entry *payload, int pos );
+void ibt_insert( Trie trie, Entry * payload );
 
 /// search for the key in the trie by finding
 /// the closest entry that matches key in the Trie.
@@ -74,7 +74,7 @@ void ibt_insert( Trie trie, Entry *payload, int pos );
 /// @param key the key to find 
 /// @return entry representing the found entry or a null entry for not found
 
-Entry *ibt_search( Trie trie, ikey_t key, int pos );
+Entry *ibt_search( Trie trie, ikey_t key );
 
 /// get the size of the trie or number of leaf elements
 /// @param trie a pointer to a Trie instance
@@ -102,8 +102,6 @@ size_t ibt_height( Trie trie);
 /// @param stream the stream destination of output
 
 void ibt_show( Trie trie, FILE * stream);
-
-size_t bit( ikey_t key, int pos );
 
 #endif // TRIE_H
 

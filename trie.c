@@ -20,7 +20,7 @@ typedef
 struct Node_s {
     //TODO define Node_s structure content here
     struct Node_s *left;
-    Entry *value;
+    Entry         *value;
     struct Node_s *right;
 } * Node;
 
@@ -44,23 +44,23 @@ const size_t RADIX = 256;
 const size_t BIT = 1 << 31;
 
 //TODO implementation for everything after this
-size_t bit( ikey_t key, int pos ) {
-     size_t bit;
-     size_t shift = 1 << pos;
-     if (( shift & key) == shift) {
-         bit = 1;
-     }
-     else {
-         bit = 0;
-     }
- 
-     return bit;
+static size_t bit( ikey_t key, int pos ) {
+     size_t bit = key >> (31 - pos - 1);
+     return bit & 1;
 }
 
 //ikey_t convert_ip( ikey_t num ) {
 
-Node node_create( Entry *payload ) {
-    Node t = malloc(sizeof(Node));
+static Entry *entry_create( ikey_t key ) {
+    Entry *payload;
+    payload = malloc(sizeof(struct Entry_s));
+    payload->key = key;
+    return payload;
+}
+
+static Node node_create( Entry *payload ) {
+    Node t = malloc(sizeof(struct Node_s));
+    t->value = malloc(sizeof(struct Entry_s));
     t->left = NULL;
     t->right = NULL;
     if (payload == NULL) {
@@ -73,27 +73,43 @@ Node node_create( Entry *payload ) {
     return t;
 }
 
-Trie ibt_create( void ) {
+Trie ibt_create( Entry *payload ) {
     Trie trie;
-    trie = malloc( sizeof(Trie) * sizeof(Node) );
-    trie->root = malloc(sizeof(Node));
-    trie->root->value = NULL;
+    trie = malloc(sizeof(struct Trie_s));
+    trie->root = malloc(sizeof(struct Node_s));
+    trie->root->value = malloc(sizeof(struct Entry_s));
+    trie->root->value = payload;
     trie->root->left = NULL;
     trie->root->right = NULL;
+
     return trie;
 }
 
-void ibt_destroy( Trie trie ) {
-
+static void node_destroy( Node node ) {
+    if (node == NULL) {
+        return;
+    }
+    node_destroy(node->left);
+    node_destroy(node->right);
+    free(node->left);
+    free(node->value);
+    free(node->right);
 }
 
-Node split( Node node1, Node node2, int pos ) {
-    Node curr = malloc(sizeof(Node));
+void ibt_destroy( Trie trie ) {
+    if (trie == NULL) {
+        return;
+    }
+    node_destroy(trie->root);
+}
+
+static Node split( Node node1, Node node2, int pos ) {
+    Node curr = node_create(NULL); 
     ikey_t key1 = node1->value->key;
     ikey_t key2 = node2->value->key;
     switch (bit(key1, pos) * 2 + bit(key2, pos)) {
         case 0: 
-        curr->left = split(node1, node2, pos - 1);
+        curr->left = split(node1, node2, pos + 1);
         break;
 
         case 1:
@@ -107,33 +123,39 @@ Node split( Node node1, Node node2, int pos ) {
         break;
 
         case 3:
-        curr->right = split(node1, node2, pos - 1);
+        curr->right = split(node1, node2, pos + 1);
         break;
     }
     return curr;
 }
 
-Node node_insert( Node node, Entry *payload, int pos ) {
+static void node_insert( Node node, Entry *payload, int pos ) {
     if (node == NULL) {
-        return node_create(payload);
+        return;
     }
-    if (node->left == NULL && node->right == NULL) {
-        return split(node_create(payload), node, pos);
+    else if (node->left == NULL && node->right == NULL) {
+        split(node_create(payload), node, pos);
     }
-    if (bit(payload->key, pos) == 0) {
-        node->left = node_insert(node->left, payload, pos - 1);
+    else if (bit(payload->key, pos) == 0) {
+        node_insert(node->left, payload, pos + 1);
     }
     else {
-        node->right = node_insert(node->right, payload, pos - 1);
+        node_insert(node->right, payload, pos + 1);
     }
-    return node;
 }
 
-void ibt_insert( Trie trie, Entry *payload, int pos ) {
-    trie->root = node_insert(trie->root, payload, pos);
+void ibt_insert( Trie trie, Entry *payload ) {
+    if (trie->root == NULL) {
+        trie->root = node_create(payload);
+    }
+    if (trie->root->value == NULL) {
+        trie->root->value = payload;
+    }
+
+    node_insert(trie->root, payload, 0);
 }
 
-Entry *node_search( Node node, ikey_t key, int pos ) {
+static Entry *node_search( Node node, ikey_t key, int pos ) {
     if (node == NULL) {
         return NULL;
     }
@@ -146,38 +168,70 @@ Entry *node_search( Node node, ikey_t key, int pos ) {
         }
     }
     if (bit(key, pos) == 0) {
-        return node_search(node->left, key, pos - 1);
+        return node_search(node->left, key, pos + 1);
     }
     else {
-        return node_search(node->right, key, pos - 1);
+        return node_search(node->right, key, pos + 1);
     }
 }
 
-Entry *ibt_search( Trie trie, ikey_t key , int pos ) {
+Entry *ibt_search( Trie trie, ikey_t key ) {
     if (trie == NULL) {
         return NULL;
     }
     if (trie->root->left == NULL && trie->root->right == NULL) {
-        if (key == trie->root->value->key) {
-            return trie->root->value;
-        }
-        else {
-            return NULL;
-        }
+        return trie->root->value;
     }
-    if (bit(key, pos) == 0) {
-        return node_search(trie->root->left, key, pos - 1);
+    if (bit(key, 0) == 0) {
+        return node_search(trie->root->left, key, 1);
     }
     else {
-        return node_search(trie->root->right, key, pos - 1);
+        return node_search(trie->root->right, key, 1);
     }
+}
+
+static size_t node_height( Node node ) {
+    if (node == NULL) {
+        return 0;
+    }
+    size_t left = node_height(node->left);
+    size_t right = node_height(node->right);
+    if (left > right) {
+        return left + 1;
+    }
+    return right + 1;
 }
 
 size_t ibt_height( Trie trie ) {
-    return 0;
+    if (trie == NULL) {
+        return -1;
+    }
+    else if (trie->root->left == NULL && trie->root->right == NULL) {
+        return 0;
+    }
+    size_t left = node_height(trie->root->left);
+    size_t right = node_height(trie->root->right);
+    if (left > right) {
+        return left + 1;
+    }
+    return right + 1;
+}
+
+static size_t node_size( Node node ) {
+    if (node == NULL) {
+        return 0;
+    }
+    if (node->left == NULL && node->right == NULL) {
+        return 1;
+    }
+    return node_size(node->left) + node_size(node->right);
 }
 
 size_t ibt_size( Trie trie ) {
+    return 0;
+}
+
+static size_t count_node( Node node ) {
     return 0;
 }
 
@@ -185,8 +239,26 @@ size_t ibt_node_count( Trie trie ) {
     return 0;
 }
 
+static void node_show( Node node, FILE * stream ) {
+    if (node == NULL) {
+        return;
+    }
+    node_show(node->left, stream);
+    unsigned char bytes[4];
+    Entry *data = node->value;
+    ikey_t ip = data->key;
+    bytes[0] = ip & 0xFF;
+    bytes[1] = (ip >> 8) & 0xFF;
+    bytes[2] = (ip >> 16) & 0xFF;
+    bytes[3] = (ip >> 24) & 0xFF;
+    fprintf(stream, "%u: (%d.%d.%d.%d,", ip, bytes[3], bytes[2], bytes[1], bytes[0]);
+    fprintf(stream, " %s: %s, %s, %s)\n", data->code, data->name, data->province, data->city);
+    node_show(node->right, stream);
+}
+
 void ibt_show( Trie trie, FILE * stream ) {
-
-
-
+    if (trie == NULL) {
+        return;
+    }
+    node_show(trie->root, stream);
 }
