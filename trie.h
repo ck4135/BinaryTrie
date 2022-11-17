@@ -103,5 +103,8 @@ size_t ibt_height( Trie trie);
 
 void ibt_show( Trie trie, FILE * stream);
 
+void ibt_draw( Trie trie, FILE * stream);
+
+Entry* entry_create( ikey_t key, char *code, char *name, char *province, char *city );
 #endif // TRIE_H
 

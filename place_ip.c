@@ -1,6 +1,6 @@
 // File: place_ip.c
 // @author Chan-Sung Kim
-//
+// @author ck4135
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,45 +25,41 @@ int main ( int argc, char *argv[] ) {
     // construct Trie
     char buf[RADIX];
     memset(buf, 0, RADIX);
-    char *token;
     Trie trie = ibt_create(NULL);
-    Entry *from_range, *to_range;
     while (fgets(buf, RADIX, fp) != NULL) {
-        // set from and to IP addresses
-        from_range = malloc(sizeof(struct Entry_s));
-        to_range = malloc(sizeof(struct Entry_s));
+        char *code, *name, *province, *city;
+        ikey_t from, to;
+        Entry *from_range, *to_range;
+        // get from and to IP addresses
+        from = atoi(strtok(buf, delim));
+        to = atoi(strtok(NULL, delim));
         
-        from_range->key = atoi(strtok(buf, delim));
-        to_range->key = atoi(strtok(NULL, delim));
-        
-        // set country codes
-        token = strtok(NULL, delim);
-        from_range->code = token;
-        to_range->code = token;
+        // get country code
+        code = strtok(NULL, delim);
 
-        // set country names
-        token = strtok(NULL, delim);
-        from_range->name = token;
-        to_range->name = token;
+        // get country name
+        name = strtok(NULL, delim);
 
-        // set provinces
-        token = strtok(NULL, delim);
-        from_range->province = token;
-        to_range->province = token;
+        // get province
+        province = strtok(NULL, delim);
 
-        // set cities
-        token = strtok(NULL, delim);
-        from_range->city = token;
-        to_range->city = token;
+        // get city
+        city = strtok(NULL, delim);
 
         // insert data into Trie
+        from_range = entry_create(from, code, name, province, city);
+        to_range = entry_create(to, code, name, province, city);
+
         ibt_insert(trie, from_range);
         ibt_insert(trie, to_range);
     }
 
-    ibt_show(trie, stdin);
-
-    // take in IPV4 number to search for
+    size_t height = ibt_height(trie);
+    size_t size = ibt_size(trie);
+    size_t internal = ibt_node_count(trie);
+    printf("height: %zu\nsize: %zu\nnode_count: %zu\n", height, size, internal);
+    
+    // takes in user input
     char ip[BITSPERWORD];
     printf("Enter an IPV4 string or a number (or a blank line to quit).\n> ");
     fgets(ip, BITSPERWORD, stdin);
@@ -74,6 +70,11 @@ int main ( int argc, char *argv[] ) {
         printf("\n> ");
         fgets(ip, BITSPERWORD, stdin);
     }
+
+    printf("\nkeys:\n");
+    ibt_show(trie, stdout);
+
+    ibt_destroy(trie);
     fclose(fp);
     return 0;
 }
