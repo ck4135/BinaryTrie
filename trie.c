@@ -165,12 +165,45 @@ static Entry *node_search( Node node, ikey_t key, int pos ) {
     if (node == NULL) {
         return NULL;
     }
+
+    // check if leaf node
     if (node->left == NULL && node->right == NULL) {
         return node->value;
     }
+
+    // search for closest match
     if (bit(key, pos) == 0 && node->left == NULL) {
         Node left_search = node->right;
-        while (left_search != NULL)
+        while (left_search != NULL) {
+            if (left_search->left == NULL && left_search->right == NULL) {
+                break;
+            }
+            if (left_search->left == NULL) {
+                left_search = left_search->right;
+            }
+            else {
+                left_search = left_search->left;
+            }
+        }
+        return left_search->value;
+    }
+    if (bit(key, pos) == 1 && node->right == NULL) {
+        Node right_search = node->left;
+        while (right_search != NULL) {
+            if (right_search->left == NULL && right_search->right == NULL) {
+                break;
+            }
+            if (right_search->right == NULL) {
+                right_search = right_search->left;
+            }
+            else {
+                right_search = right_search->right;
+            }
+        }
+        return right_search->value;
+    }
+
+    // continue recursive search for key
     if (bit(key, pos) == 0) {
         return node_search(node->left, key, pos + 1);
     }
@@ -195,7 +228,7 @@ Entry *ibt_search( Trie trie, ikey_t key ) {
 }
 
 static size_t node_height( Node node ) {
-    if (node == NULL) {
+    /*if (node == NULL) {
         return 0;
     }
     size_t left = node_height(node->left);
@@ -203,7 +236,21 @@ static size_t node_height( Node node ) {
     if (left > right) {
         return left + 1;
     }
-    return right + 1;
+    return right + 1;*/
+    if( node == NULL ) {
+        return -1;
+    } 
+    //else if( node->value != NULL && node->left == NULL && node->right == NULL ) {
+    //    return 0;
+    //} 
+    else {
+        size_t left = node_height( node->left );
+        size_t right = node_height( node->right );
+        if ( left >= right ) {
+            return left + 1;
+        } 
+        return right + 1;
+    }
 }
 
 size_t ibt_height( Trie trie ) {

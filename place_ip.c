@@ -104,7 +104,7 @@ int main ( int argc, char *argv[] ) {
         
         found = ibt_search(trie, key);
         if (found == NULL) {
-            printf("(INVALID, -: -, -, -)");
+            printf("%u: (INVALID, -: -, -, -)\n", key);
         }
         else {
             entry_print(found, stdout);
