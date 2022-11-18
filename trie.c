@@ -49,7 +49,17 @@ static size_t bit( ikey_t key, int pos ) {
      return bit & 1;
 }
 
-//ikey_t convert_ip( ikey_t num ) {
+void entry_print( Entry * payload, FILE * stream ) {
+    unsigned char bytes[4];
+    ikey_t ip = payload->key;
+    bytes[0] = ip & 0xFF;
+    bytes[1] = (ip >> 8) & 0xFF;
+    bytes[2] = (ip >> 16) & 0xFF;
+    bytes[3] = (ip >> 24) & 0xFF;
+    fprintf(stream, "%u: (%d.%d.%d.%d,", ip, bytes[3], bytes[2], bytes[1], bytes[0]);
+    fprintf(stream, " %s: %s, %s, %s)\n", payload->code, payload->name, 
+        payload->city, payload->province);
+}
 
 static Node node_create( Entry *payload ) {
     Node t = malloc(sizeof(struct Node_s));
@@ -60,31 +70,46 @@ static Node node_create( Entry *payload ) {
     return t;
 }
 
-Trie ibt_create( Entry *payload ) {
+Trie ibt_create( void ) {
     Trie trie;
     trie = malloc(sizeof(struct Trie_s));
-    trie->root = node_create(payload);
+    trie->root = NULL;
 
     return trie;
 }
 
+static void entry_destroy( Entry * payload ) {
+    // check if entry exists
+    if (payload == NULL) {
+        return;
+    }
+
+    free(payload->code);
+    free(payload->name);
+    free(payload->province);
+    free(payload->city);
+    free(payload);
+}
+
 static void node_destroy( Node node ) {
+    // check if node exists
     if (node == NULL) {
         return;
     }
     node_destroy(node->left);
     node_destroy(node->right);
     
-    free(node->left);
-    free(node->value);
-    free(node->right);
+    entry_destroy(node->value);
+    free(node);
 }
 
 void ibt_destroy( Trie trie ) {
+    // check if trie exists
     if (trie == NULL) {
         return;
     }
     node_destroy(trie->root);
+    free(trie);
 }
 
 static Node split( Node node1, Node node2, int pos ) {
@@ -133,10 +158,6 @@ static Node node_insert( Node node, Entry *payload, int pos ) {
 }
 
 void ibt_insert( Trie trie, Entry *payload ) {
-    //if (trie->root->value == NULL) {
-    //    trie->root->value = payload;
-    //}
-
     trie->root = node_insert(trie->root, payload, 0);
 }
 
@@ -145,13 +166,11 @@ static Entry *node_search( Node node, ikey_t key, int pos ) {
         return NULL;
     }
     if (node->left == NULL && node->right == NULL) {
-        if (key == node->value->key) {
-            return node->value;
-        }
-        else {
-            return NULL;
-        }
+        return node->value;
     }
+    if (bit(key, pos) == 0 && node->left == NULL) {
+        Node left_search = node->right;
+        while (left_search != NULL)
     if (bit(key, pos) == 0) {
         return node_search(node->left, key, pos + 1);
     }
@@ -247,15 +266,7 @@ static void node_show( Node node, FILE * stream ) {
 
     node_show(node->left, stream);
     if (node->value != NULL) {
-        unsigned char bytes[4];
-        Entry *data = node->value;
-        ikey_t ip = data->key;
-        bytes[0] = ip & 0xFF;
-        bytes[1] = (ip >> 8) & 0xFF;
-        bytes[2] = (ip >> 16) & 0xFF;
-        bytes[3] = (ip >> 24) & 0xFF;
-        fprintf(stream, "%u: (%d.%d.%d.%d,", ip, bytes[3], bytes[2], bytes[1], bytes[0]);
-        fprintf(stream, " %s: %s, %s, %s)\n", data->code, data->name, data->city, data->province);
+        entry_print(node->value, stream);
     }
     node_show(node->right, stream);
 }
@@ -264,17 +275,23 @@ void ibt_show( Trie trie, FILE * stream ) {
     node_show(trie->root, stream);
 }
 
-void ibt_draw( Trie trie, FILE * stream ) {
-    return;
-}
-
 Entry* entry_create( ikey_t key, char *code, char *name, char *province, char *city ) {
     Entry *payload = malloc(sizeof(struct Entry_s));
+    
     payload->key = key;
-    payload->code = code;
-    payload->name = name;
-    payload->province = province;
-    payload->city = city;
+    
+    payload->code = malloc(strlen(code) + 1);
+    strcpy(payload->code, code);
+
+    payload->name = malloc(strlen(name) + 1);
+    strcpy(payload->name, name);
+
+    payload->province = malloc(strlen(province) + 1);
+    strcpy(payload->province, province);
+
+    payload->city = malloc(strlen(city) + 1);
+    strcpy(payload->city, city);
+
     return payload;
 }
 

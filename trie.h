@@ -45,11 +45,11 @@ extern const size_t BYTESPERWORD;       ///< number of bytes in a word
 extern const size_t RADIX;              ///< number of possible key values
 
 /// Create a Trie instance and initialize its fields.
-/// @param TODO ...
+/// @param TODO void
 /// @return pointer to the Trie object instance or NULL on failure
 /// @post Trie is NULL on failure or initialized with a NULL trie root
 
-Trie ibt_create( Entry * payload );
+Trie ibt_create( void );
 
 /// Destroy the trie and free all storage.
 /// Uses Trie's Delete_value function to free app-specific (key and) value;
@@ -101,10 +101,13 @@ size_t ibt_height( Trie trie);
 /// @param trie a pointer to a Trie instance
 /// @param stream the stream destination of output
 
-void ibt_show( Trie trie, FILE * stream);
+void ibt_show( Trie trie, FILE * stream );
 
-void ibt_draw( Trie trie, FILE * stream);
+void ibt_draw( Trie trie, FILE * stream );
+
+void entry_print( Entry * payload, FILE * stream );
 
 Entry* entry_create( ikey_t key, char *code, char *name, char *province, char *city );
+
 #endif // TRIE_H
 
