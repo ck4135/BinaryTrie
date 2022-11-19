@@ -11,7 +11,7 @@ const char delim[] = ",\"\n";
 int main ( int argc, char *argv[] ) {
     // check for valid arguments
     if (argc != 2) {
-        fprintf(stderr, "Usage: $ ./place_ip filename\n");
+        fprintf(stderr, "usage: $ ./place_ip filename\n");
         return -1;
     }
 
@@ -27,12 +27,16 @@ int main ( int argc, char *argv[] ) {
     memset(buf, 0, RADIX);
     Trie trie = ibt_create();
     while (fgets(buf, RADIX, fp) != NULL) {
+        if (buf[0] == '\n') {
+            fprintf(stderr, "error: empty dataset\n");
+            return -1;
+        }
         char *code, *name, *province, *city;
         ikey_t from, to;
         // get from and to IP addresses
         from = atoi(strtok(buf, delim));
         to = atoi(strtok(NULL, delim));
-        
+    
         // get country code
         code = strtok(NULL, delim);
 
@@ -56,13 +60,13 @@ int main ( int argc, char *argv[] ) {
     size_t height = ibt_height(trie);
     size_t size = ibt_size(trie);
     size_t internal = ibt_node_count(trie);
-    fprintf(stdout, "height: %zu\nsize: %zu\nnode_count: %zu\n", height, size, internal);
+    fprintf(stdout, "\nheight: %zu\nsize: %zu\nnode_count: %zu\n", height, size, internal);
     
     // takes in user input
     
-    char ip[BITSPERWORD];
-    fprintf(stdout, "\n\nEnter an IPV4 string or a number (or a blank line to quit).\n> ");
-    fgets(ip, BITSPERWORD, stdin);
+    char ip[RADIX];
+    fprintf(stdout, "\n\nEnter an ipv4 string or a number (or a blank line to quit).\n> ");
+    fgets(ip, RADIX, stdin);
     while (ip[0] != ' ' && ip[0] != '\n') {
         Entry *found;
         ikey_t key = 0;
