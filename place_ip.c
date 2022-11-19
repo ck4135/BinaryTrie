@@ -1,6 +1,7 @@
 // File: place_ip.c
 // @author Chan-Sung Kim
 // @author ck4135
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,26 +12,30 @@ const char delim[] = ",\"\n";
 int main ( int argc, char *argv[] ) {
     // check for valid arguments
     if (argc != 2) {
-        fprintf(stderr, "usage: $ ./place_ip filename\n");
-        return -1;
+        fprintf(stderr, "usage: place_ip filename\n");
+        return EXIT_FAILURE;
     }
 
     // check for valid file
     FILE *fp = fopen(argv[1], "r");
     if (fp == NULL) {
         perror(argv[1]);
-        return -1;
+        return EXIT_FAILURE;
+    }
+    
+    char *buf;
+    size_t buf_size = 0;
+    ssize_t chars = getline(&buf, &buf_size, fp);
+    
+    // check for empty file
+    if (chars == 1) {
+        fprintf(stderr, "error: empty dataset\n");
+        return EXIT_FAILURE;
     }
 
-    // construct Trie
-    char buf[RADIX];
-    memset(buf, 0, RADIX);
+    // read and insert data into Trie
     Trie trie = ibt_create();
-    while (fgets(buf, RADIX, fp) != NULL) {
-        if (buf[0] == '\n') {
-            fprintf(stderr, "error: empty dataset\n");
-            return -1;
-        }
+    while (chars > 0) {
         char *code, *name, *province, *city;
         ikey_t from, to;
         // get from and to IP addresses
@@ -55,15 +60,19 @@ int main ( int argc, char *argv[] ) {
 
         ibt_insert(trie, from_range);
         ibt_insert(trie, to_range);
-    }
 
+        free(buf);
+        buf = NULL;
+
+        chars = getline(&buf, &buf_size, fp);
+    }
+    
     size_t height = ibt_height(trie);
     size_t size = ibt_size(trie);
     size_t internal = ibt_node_count(trie);
     fprintf(stdout, "\nheight: %zu\nsize: %zu\nnode_count: %zu\n", height, size, internal);
     
     // takes in user input
-    
     char ip[RADIX];
     fprintf(stdout, "\n\nEnter an ipv4 string or a number (or a blank line to quit).\n> ");
     fgets(ip, RADIX, stdin);
@@ -72,7 +81,6 @@ int main ( int argc, char *argv[] ) {
         ikey_t key = 0;
         int boolean = 0;
         ip[strcspn(ip, "\n")] = 0;
-        
         for (size_t i = 0; i < strlen(ip); i++) {
             if (ip[i] == '.') {
                 boolean = 1;
