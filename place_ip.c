@@ -61,9 +61,9 @@ int main ( int argc, char *argv[] ) {
     // takes in user input
     
     char ip[BITSPERWORD];
-    fprintf(stdout, "Enter an IPV4 string or a number (or a blank line to quit).\n> ");
+    fprintf(stdout, "\n\nEnter an IPV4 string or a number (or a blank line to quit).\n> ");
     fgets(ip, BITSPERWORD, stdin);
-    while (ip[0] != '\n') {
+    while (ip[0] != ' ' && ip[0] != '\n') {
         Entry *found;
         ikey_t key = 0;
         int boolean = 0;
