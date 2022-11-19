@@ -56,12 +56,12 @@ int main ( int argc, char *argv[] ) {
     size_t height = ibt_height(trie);
     size_t size = ibt_size(trie);
     size_t internal = ibt_node_count(trie);
-    printf("height: %zu\nsize: %zu\nnode_count: %zu\n", height, size, internal);
+    fprintf(stdout, "height: %zu\nsize: %zu\nnode_count: %zu\n", height, size, internal);
     
     // takes in user input
     
     char ip[BITSPERWORD];
-    printf("Enter an IPV4 string or a number (or a blank line to quit).\n> ");
+    fprintf(stdout, "Enter an IPV4 string or a number (or a blank line to quit).\n> ");
     fgets(ip, BITSPERWORD, stdin);
     while (ip[0] != '\n') {
         Entry *found;
@@ -104,17 +104,17 @@ int main ( int argc, char *argv[] ) {
         
         found = ibt_search(trie, key);
         if (found == NULL) {
-            printf("%u: (INVALID, -: -, -, -)\n", key);
+            fprintf(stdout, "%u: (INVALID, -: -, -, -)\n", key);
         }
         else {
             entry_print(found, stdout);
         }
-        printf("> ");
+        fprintf(stdout, "> ");
         fgets(ip, BITSPERWORD, stdin);
     }
 
-    printf("\nibt_show output:\n\nkeys:\n");
-    ibt_show(trie, stdout);
+    //fprintf(stdout, "\nibt_show output:\n\nkeys:\n");
+    //ibt_show(trie, stdout);
 
     ibt_destroy(trie);
     fclose(fp);

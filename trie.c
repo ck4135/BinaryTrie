@@ -228,7 +228,7 @@ Entry *ibt_search( Trie trie, ikey_t key ) {
 }
 
 static size_t node_height( Node node ) {
-    /*if (node == NULL) {
+    if (node == NULL) {
         return 0;
     }
     size_t left = node_height(node->left);
@@ -236,21 +236,7 @@ static size_t node_height( Node node ) {
     if (left > right) {
         return left + 1;
     }
-    return right + 1;*/
-    if( node == NULL ) {
-        return -1;
-    } 
-    //else if( node->value != NULL && node->left == NULL && node->right == NULL ) {
-    //    return 0;
-    //} 
-    else {
-        size_t left = node_height( node->left );
-        size_t right = node_height( node->right );
-        if ( left >= right ) {
-            return left + 1;
-        } 
-        return right + 1;
-    }
+    return right + 1;
 }
 
 size_t ibt_height( Trie trie ) {
@@ -266,6 +252,7 @@ size_t ibt_height( Trie trie ) {
         return left + 1;
     }
     return right + 1;
+    //return node_height(trie->root);
 }
 
 static size_t node_size( Node node ) {
