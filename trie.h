@@ -20,7 +20,6 @@ typedef unsigned int ikey_t;
 struct Entry_s {
     ikey_t key;              ///< unique identifier key
     ///< TODO DECIDE WHAT TO ADD HERE
-    //char values[6];
     char *from;
     char *to;
     char *code;
@@ -102,8 +101,6 @@ size_t ibt_height( Trie trie);
 /// @param stream the stream destination of output
 
 void ibt_show( Trie trie, FILE * stream );
-
-void ibt_draw( Trie trie, FILE * stream );
 
 void entry_print( Entry * payload, FILE * stream );
 

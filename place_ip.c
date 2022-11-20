@@ -28,7 +28,7 @@ int main ( int argc, char *argv[] ) {
     ssize_t chars = getline(&buf, &buf_size, fp);
     
     // check for empty file
-    if (chars == 1) {
+    if (chars <= 1) {
         fprintf(stderr, "error: empty dataset\n");
         return EXIT_FAILURE;
     }
@@ -76,7 +76,7 @@ int main ( int argc, char *argv[] ) {
     char ip[RADIX];
     fprintf(stdout, "\n\nEnter an ipv4 string or a number (or a blank line to quit).\n> ");
     fgets(ip, RADIX, stdin);
-    while (ip[0] != ' ' && ip[0] != '\n') {
+    while (!feof(stdin) && ip[0] != '\n') {
         Entry *found;
         ikey_t key = 0;
         int boolean = 0;
@@ -133,3 +133,4 @@ int main ( int argc, char *argv[] ) {
     
     return 0;
 }
+
