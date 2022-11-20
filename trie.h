@@ -79,19 +79,19 @@ Entry *ibt_search( Trie trie, ikey_t key );
 /// @param trie a pointer to a Trie instance
 /// @return size of trie 
 
-size_t ibt_size( Trie trie);
+size_t ibt_size ( Trie trie );
 
 /// get the node count of the trie: the number of internal nodes
 /// @param trie a pointer to a Trie instance
 /// @return the count of internal nodes
 
-size_t ibt_node_count( Trie trie);
+size_t ibt_node_count( Trie trie );
 
 /// get height of the trie
 /// @param trie a pointer to a Trie instance
 /// @return height of trie
 
-size_t ibt_height( Trie trie);
+size_t ibt_height( Trie trie );
 
 /// Perform an in-order traversal to show each (key, value) in the trie.
 /// Uses Trie's Show_value function to show each leaf node's data,
@@ -102,7 +102,18 @@ size_t ibt_height( Trie trie);
 
 void ibt_show( Trie trie, FILE * stream );
 
+/// Prints out an entry and its values in a standardized format.
+/// @param payload the entry to print
+/// @param stream the stream destination of output
+
 void entry_print( Entry * payload, FILE * stream );
+
+/// Creates an instance of Entry struct and initializes its values
+/// @param key key of entry
+/// @param code country code
+/// @param name name of country
+/// @param province province of country
+/// @param city city of country
 
 Entry* entry_create( ikey_t key, char *code, char *name, char *province, char *city );
 

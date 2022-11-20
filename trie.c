@@ -41,14 +41,20 @@ const size_t BITSPERBYTE = 8;
 const size_t BITSPERWORD = 32;
 const size_t BYTESPERWORD = 4;
 const size_t RADIX = 256;
-const size_t SHIFT = 1 << 31;
 
 //TODO implementation for everything after this
+
+/// Finds bit at given position
+/// @param key key to find bit in
+/// @param pos position to bit mask
+/// @return bit 0 or 1 at given pos 
+
 static size_t bit( ikey_t key, int pos ) {
      size_t bit = key >> (31 - pos);
      return bit & 1;
 }
 
+/// Prints out an entry and its values in IP format
 void entry_print( Entry * payload, FILE * stream ) {
     unsigned char bytes[4];
     ikey_t ip = payload->key;
@@ -61,6 +67,10 @@ void entry_print( Entry * payload, FILE * stream ) {
         payload->city, payload->province);
 }
 
+/// Creates a node instance that holds data entries
+/// @param payload given entry to store in node
+/// @return a new node 
+
 static Node node_create( Entry *payload ) {
     Node t = malloc(sizeof(struct Node_s));
     t->left = NULL;
@@ -70,6 +80,7 @@ static Node node_create( Entry *payload ) {
     return t;
 }
 
+/// Creates and returns empty trie
 Trie ibt_create( void ) {
     Trie trie;
     trie = malloc(sizeof(struct Trie_s));
@@ -77,6 +88,9 @@ Trie ibt_create( void ) {
 
     return trie;
 }
+
+/// Frees a given entry struct and its values
+/// @param payload given entry 
 
 static void entry_destroy( Entry * payload ) {
     // check if entry exists
@@ -91,6 +105,9 @@ static void entry_destroy( Entry * payload ) {
     free(payload);
 }
 
+/// Destroys memory associated with a given node struct and its children
+/// @param node node_s struct
+
 static void node_destroy( Node node ) {
     // check if node exists
     if (node == NULL) {
@@ -103,6 +120,7 @@ static void node_destroy( Node node ) {
     free(node);
 }
 
+/// Destroys the memory of a trie and all its contents
 void ibt_destroy( Trie trie ) {
     // check if trie exists
     if (trie == NULL) {
@@ -111,6 +129,12 @@ void ibt_destroy( Trie trie ) {
     node_destroy(trie->root);
     free(trie);
 }
+
+/// Splits a leaf node into a new branch when in the insert algorithm
+/// @param node1 node to insert into the trie
+/// @param node2 leaf node to split
+/// @param pos current bit position to check
+/// @return new node with new branches and leaf nodes
 
 static Node split( Node node1, Node node2, int pos ) {
     Node curr = node_create(NULL); 
@@ -138,6 +162,12 @@ static Node split( Node node1, Node node2, int pos ) {
     return curr;
 }
 
+/// Recursively inserts a node with a given entry into the trie
+/// @param node given node to insert into
+/// @param entry data to insert into a node
+/// @param pos current bit position to check
+/// @return struct with inserted entry
+
 static Node node_insert( Node node, Entry *payload, int pos ) {
     if (node == NULL) {
         return node_create(payload);
@@ -157,9 +187,16 @@ static Node node_insert( Node node, Entry *payload, int pos ) {
     return node;
 }
 
+/// Inserts an entry into trie
 void ibt_insert( Trie trie, Entry *payload ) {
     trie->root = node_insert(trie->root, payload, 0);
 }
+
+/// Searches for an exact matching key in a trie, if not the closest match
+/// @param node struct to search through
+/// @param key key to search for
+/// @param pos current bit position to check
+/// @return found entry containing closest match to key
 
 static Entry *node_search( Node node, ikey_t key, int pos ) {
     if (node == NULL) {
@@ -212,6 +249,7 @@ static Entry *node_search( Node node, ikey_t key, int pos ) {
     }
 }
 
+/// Finds an entry with closest matching key, calls node recursive function
 Entry *ibt_search( Trie trie, ikey_t key ) {
     if (trie == NULL) {
         return NULL;
@@ -227,6 +265,10 @@ Entry *ibt_search( Trie trie, ikey_t key ) {
     }
 }
 
+/// Recursively finds the height of a given node struct and its children
+/// @param node given node
+/// @return height of node
+
 static size_t node_height( Node node ) {
     if (node == NULL) {
         return 0;
@@ -239,6 +281,7 @@ static size_t node_height( Node node ) {
     return right + 1;
 }
 
+/// Finds height of a trie 
 size_t ibt_height( Trie trie ) {
     if (trie == NULL) {
         return -1;
@@ -252,29 +295,33 @@ size_t ibt_height( Trie trie ) {
         return left + 1;
     }
     return right + 1;
-    //return node_height(trie->root);
 }
 
+/// Recursively finds number of leaf nodes or entries in node struct
+/// @param node given node struct
+/// @return number of data entries 
+
 static size_t node_size( Node node ) {
-    //size_t size = 0;
     if (node == NULL) {
         return 0;
     }
     if (node->left == NULL && node->right == NULL) {
-        //size++;
         return 1;
-    } //else {
-      //  return size + node_size(node->left) + node_size(node->right);
-    //}
+    }
     return node_size(node->left) + node_size(node->right);
 }
 
+/// Finds size of trie
 size_t ibt_size( Trie trie ) {
     if (trie == NULL) {
         return 0;
     }
     return node_size(trie->root);
 }
+
+/// Recursively counts number of internal nodes in a node struct
+/// @param node given node struct
+/// @return node count 
 
 static size_t count_node( Node node ) {
     if (node == NULL) {
@@ -286,12 +333,17 @@ static size_t count_node( Node node ) {
     return 1 + count_node(node->left) + count_node(node->right);
 }
 
+/// Finds and returns node count of a given trie
 size_t ibt_node_count( Trie trie ) {
     if (trie == NULL) {
         return 0;
     }
     return count_node(trie->root);
 }
+
+/// Finds and prints out each data entry in a node struct
+/// @param node given node struct
+/// @param stream output stream destination
 
 static void node_show( Node node, FILE * stream ) {
     if (node == NULL) {
@@ -305,10 +357,12 @@ static void node_show( Node node, FILE * stream ) {
     node_show(node->right, stream);
 }
 
+/// Prints out all data entries of trie
 void ibt_show( Trie trie, FILE * stream ) {
     node_show(trie->root, stream);
 }
 
+/// Creates an instance of entry with given data
 Entry* entry_create( ikey_t key, char *code, char *name, char *province, char *city ) {
     Entry *payload = malloc(sizeof(struct Entry_s));
     

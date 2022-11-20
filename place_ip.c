@@ -23,7 +23,7 @@ int main ( int argc, char *argv[] ) {
         return EXIT_FAILURE;
     }
     
-    char *buf;
+    char *buf = NULL;
     size_t buf_size = 0;
     ssize_t chars = getline(&buf, &buf_size, fp);
     
@@ -66,6 +66,7 @@ int main ( int argc, char *argv[] ) {
 
         chars = getline(&buf, &buf_size, fp);
     }
+    free(buf);
     
     size_t height = ibt_height(trie);
     size_t size = ibt_size(trie);
